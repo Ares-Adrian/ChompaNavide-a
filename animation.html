@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualización de Tallas y Precios Navideños</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración personalizada de Tailwind para colores navideños y fuentes -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'navidad-rojo': '#C0392B', // Rojo Profundo
+                        'navidad-verde': '#27AE60', // Verde Pino
+                        'navidad-oro': '#F1C40F',   // Dorado Brillante
+                        'navidad-crema': '#ECF0F1', // Crema Claro
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                        'display': ['Georgia', 'serif'], // Fuente de exhibición
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos personalizados para el efecto de sombra y fondo */
+        .christmas-card {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), 0 0 0 5px #F1C40F; /* Sombra y borde dorado */
+            animation: pulse 4s infinite alternate; /* Animación sutil */
+        }
+        .price-tag {
+            background-color: #C0392B;
+            transform: rotate(3deg);
+            padding: 4px 12px;
+            border-radius: 9999px; /* Píldora */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            z-index: 10; /* Asegurar que esté encima de otros elementos */
+        }
+        .highlight-text {
+            /* Estilo para resaltar Varón, Dama, Niño/a */
+            font-size: 1.25rem; /* Reducido ligeramente para ajustarse mejor */
+            font-weight: 700;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.005); } /* Animación más sutil */
+        }
+
+        /* Estilos responsivos adicionales para el precio en móvil */
+        @media (max-width: 640px) {
+            .price-tag {
+                position: static;
+                transform: none;
+                margin-top: 8px;
+                display: block; /* Ocupar todo el ancho en móvil */
+                width: fit-content;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    </style>
+</head>
+<body class="bg-navidad-verde min-h-screen p-4 sm:p-8 flex items-start justify-center font-sans">
+
+    <!-- Contenedor Principal: Ficha de Producto Navideña -->
+    <div class="christmas-card bg-white rounded-2xl p-6 sm:p-10 w-full max-w-lg text-gray-800 border-2 border-navidad-oro relative overflow-hidden mt-8 mb-8">
+
+        <!-- Banner de Título del Producto -->
+        <div class="text-center mb-6 border-b-4 border-navidad-rojo pb-4">
+            <h1 class="text-3xl sm:text-4xl font-display font-bold text-navidad-rojo">
+                🎄 Modelo Rodolfo Verde 🎁
+            </h1>
+            <p class="text-lg text-gray-600 mt-2">¡El regalo perfecto para esta Navidad!</p>
+        </div>
+
+        <!-- NOTA: Aquí iría la imagen del producto -->
+        <div class="mb-6 rounded-xl overflow-hidden border border-gray-200">
+            <!-- Usamos un placeholder con el texto del producto, ya que no podemos incluir la imagen directamente -->
+            <div class="bg-gray-100 h-64 flex items-center justify-center text-center text-gray-500">
+                            </div>
+            <p class="text-center text-sm p-2 bg-gray-50">Chompa navideña Rodolfo Verde (Placeholder)</p>
+        </div>
+
+        <!-- Título de la Sección de Precios -->
+        <h2 class="text-2xl font-bold text-gray-700 mb-4 border-b pb-2">Opciones y Precios</h2>
+
+
+        <!-- Sección de Precios (Actualizada) -->
+        <div class="space-y-4">
+
+            <!-- Fila: Varón -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-navidad-crema/70 p-4 rounded-xl border-l-8 border-navidad-rojo transition hover:shadow-lg relative">
+                <div class="flex-grow">
+                    <span class="highlight-text text-navidad-rojo">Varón</span>
+                    <p class="text-sm text-gray-600 mt-1">Tallas disponibles: S, M y L</p>
+                </div>
+                <div class="price-tag text-white text-lg font-bold">
+                    S/60
+                </div>
+            </div>
+
+            <!-- Fila: Dama -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-navidad-crema/70 p-4 rounded-xl border-l-8 border-navidad-verde transition hover:shadow-lg relative">
+                <div class="flex-grow">
+                    <span class="highlight-text text-navidad-verde">Dama</span>
+                    <p class="text-sm text-gray-600 mt-1">Tallas disponibles: XS, S, M y L</p>
+                </div>
+                <div class="price-tag text-white text-lg font-bold">
+                    S/60
+                </div>
+            </div>
+
+            <!-- Fila: Niños/as (Todas las tallas juntas) -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-navidad-crema/70 p-4 rounded-xl border-l-8 border-navidad-rojo transition hover:shadow-lg relative">
+                <div class="flex-grow">
+                    <span class="highlight-text text-navidad-rojo">Niños/as</span>
+                    <p class="text-sm text-gray-600 mt-1">Tallas 2, 4, 6, 8, 10, 12 y 14</p>
+                </div>
+                <div class="price-tag text-white text-lg font-bold">
+                    S/55
+                </div>
+            </div>
+
+            <!-- Fila: Tallas Extra (NUEVA CATEGORÍA) -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-navidad-crema/70 p-4 rounded-xl border-l-8 border-navidad-verde transition hover:shadow-lg relative">
+                <div class="flex-grow">
+                    <span class="highlight-text text-navidad-verde">Tallas Extra</span>
+                    <p class="text-sm text-gray-600 mt-1">Tallas disponibles: XL, XXL</p>
+                </div>
+                <div class="price-tag text-white text-lg font-bold bg-navidad-oro text-navidad-rojo">
+                    S/70
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Nota al pie (Opcional) -->
+        <div class="mt-8 text-center text-gray-500 pt-4 border-t border-gray-200">
+            <p class="text-sm">¡Aprovecha nuestros precios festivos! Los precios varían según la talla.</p>
+        </div>
+    </div>
+
+</body>
+</html>

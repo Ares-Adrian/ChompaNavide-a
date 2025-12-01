@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emojis Interactivos Estilo iOS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        h2 {
+            margin-bottom: 40px;
+            color: #1d1d1f;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .sentence-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 16px;
+            background-color: #fafafa;
+            transition: transform 0.2s ease;
+        }
+
+        .sentence-row:hover {
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transform: translateY(-2px);
+        }
+
+        .text {
+            flex: 1;
+            font-size: 16px;
+            line-height: 1.5;
+            margin-right: 15px;
+        }
+
+        /* Contenedor del Emoji */
+        .emoji-wrapper {
+            width: 60px;  /* Tamaño base pequeño */
+            height: 60px;
+            position: relative;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        /* Estilos generales SVG */
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.15));
+        }
+
+        /* Animación de "respiración" / flotación suave */
+        .idle-float {
+            animation: floatHead 3s ease-in-out infinite;
+        }
+
+        @keyframes floatHead {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-3px) rotate(1deg); }
+        }
+
+        /* Clases para partes internas que se moverán con JS */
+        .face-features {
+            transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        /* Estilos específicos de los vectores */
+        .skin { fill: url(#skinGradient); }
+        .eye-white { fill: #fff; }
+        .pupil { fill: #3d2d20; }
+        .mouth { fill: #3d2d20; stroke: #3d2d20; stroke-width: 2; stroke-linecap: round; }
+        .hair-male { fill: #5d4037; }
+        .hair-female { fill: #3e2723; }
+        .hair-boy { fill: #ffb74d; } /* Rubio */
+        .hair-girl { fill: #3e2723; }
+        .blush { fill: #ff9e80; opacity: 0.4; }
+        .shirt { fill: #3b82f6; }
+        .shirt-female { fill: #ec4899; }
+
+    </style>
+</head>
+<body>
+
+    <h2>Personajes Interactivos</h2>
+
+    <div class="container">
+        <div class="sentence-row">
+            <div class="text">
+                <strong>El Varón:</strong> Este personaje representa al usuario promedio. Observa cómo te sigue con la mirada mientras lees esto.
+            </div>
+            <div class="emoji-wrapper" id="man-emoji">
+                <svg viewBox="0 0 100 100">
+                    <defs>
+                        <radialGradient id="skinGradient" cx="50%" cy="50%" r="50%" fx="30%" fy="30%">
+                            <stop offset="0%" style="stop-color:#ffeb3b" />
+                            <stop offset="100%" style="stop-color:#fbc02d" />
+                        </radialGradient>
+                    </defs>
+                    <g class="idle-float">
+                        <circle cx="50" cy="50" r="45" class="skin" />
+                        
+                        <g class="face-features">
+                            <path d="M15,45 Q20,10 50,10 Q80,10 85,45 Q85,30 50,25 Q15,30 15,45" class="hair-male" />
+                            <path d="M28,38 Q35,35 42,38" stroke="#5d4037" stroke-width="3" fill="none" stroke-linecap="round"/>
+                            <path d="M58,38 Q65,35 72,38" stroke="#5d4037" stroke-width="3" fill="none" stroke-linecap="round"/>
+                            <g class="eye-group">
+                                <circle cx="35" cy="50" r="5" class="pupil" />
+                                <circle cx="37" cy="48" r="1.5" fill="white" opacity="0.6"/>
+                            </g>
+                            <g class="eye-group">
+                                <circle cx="65" cy="50" r="5" class="pupil" />
+                                <circle cx="67" cy="48" r="1.5" fill="white" opacity="0.6"/>
+                            </g>
+                            <path d="M35,70 Q50,80 65,70" fill="none" stroke="#5d4037" stroke-width="3" stroke-linecap="round" />
+                        </g>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <div class="sentence-row">
+            <div class="text">
+                <strong>La Mujer:</strong> Diseñada con rasgos más suaves. Ella también está atenta a lo que haces en la pantalla.
+            </div>
+            <div class="emoji-wrapper" id="woman-emoji">
+                <svg viewBox="0 0 100 100">
+                    <g class="idle-float" style="animation-delay: 1s;">
+                        <path d="M20,50 Q10,80 25,95 L75,95 Q90,80 80,50" class="hair-female" />
+                        <circle cx="50" cy="50" r="42" class="skin" />
+                        
+                        <g class="face-features">
+                            <path d="M10,50 Q10,10 50,10 Q90,10 90,50 Q90,30 70,20 Q50,40 50,40 Q50,40 30,20 Q10,30 10,50" class="hair-female" />
+                            <circle cx="25" cy="65" r="6" class="blush" />
+                            <circle cx="75" cy="65" r="6" class="blush" />
+                            <g class="eye-group">
+                                <ellipse cx="32" cy="52" rx="5" ry="6" class="pupil" />
+                                <path d="M25,50 Q32,45 39,50" stroke="#3e2723" stroke-width="2" fill="none" /> </g>
+                            <g class="eye-group">
+                                <ellipse cx="68" cy="52" rx="5" ry="6" class="pupil" />
+                                <path d="M61,50 Q68,45 75,50" stroke="#3e2723" stroke-width="2" fill="none" /> </g>
+                            <path d="M40,75 Q50,82 60,75" fill="none" stroke="#a63636" stroke-width="3" stroke-linecap="round" />
+                        </g>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <div class="sentence-row">
+            <div class="text">
+                <strong>Los Niños:</strong> Un par de pequeños traviesos. Nota cómo ambos giran sus cabezas en sincronía hacia el cursor.
+            </div>
+            <div class="emoji-wrapper" id="kids-emoji" style="width: 90px;"> <svg viewBox="0 0 140 100">
+                    <g class="idle-float" transform="translate(0, 5)">
+                        <circle cx="35" cy="55" r="30" class="skin" />
+                        <g class="face-features">
+                            <path d="M10,50 Q15,25 35,25 Q55,25 60,50 Q60,35 35,35 Q10,35 10,50" class="hair-boy" />
+                            <circle cx="25" cy="55" r="3" class="pupil" />
+                            <circle cx="45" cy="55" r="3" class="pupil" />
+                            <path d="M28,68 Q35,73 42,68" fill="none" stroke="#5d4037" stroke-width="2" stroke-linecap="round" />
+                        </g>
+                    </g>
+
+                    <g class="idle-float" style="animation-delay: 0.5s;" transform="translate(70, 0)">
+                        <path d="M20,55 Q15,85 30,95 L60,95 Q75,85 70,55" class="hair-girl" />
+                        <circle cx="45" cy="55" r="30" class="skin" />
+                        <g class="face-features">
+                            <path d="M15,55 Q20,25 45,25 Q70,25 75,55 Q75,35 45,35" class="hair-girl" />
+                            <circle cx="15" cy="30" r="6" class="hair-girl" />
+                            <circle cx="75" cy="30" r="6" class="hair-girl" />
+                            <circle cx="35" cy="55" r="3" class="pupil" />
+                            <circle cx="55" cy="55" r="3" class="pupil" />
+                            <path d="M38,68 Q45,73 52,68" fill="none" stroke="#5d4037" stroke-width="2" stroke-linecap="round" />
+                        </g>
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lógica de Movimiento
+        // Detectamos el movimiento del mouse en toda la ventana
+        document.addEventListener('mousemove', (e) => {
+            const wrappers = document.querySelectorAll('.emoji-wrapper');
+
+            wrappers.forEach(wrapper => {
+                // Obtenemos el centro del emoji
+                const rect = wrapper.getBoundingClientRect();
+                const emojiCenterX = rect.left + rect.width / 2;
+                const emojiCenterY = rect.top + rect.height / 2;
+
+                // Calculamos la distancia del mouse al centro
+                const deltaX = e.clientX - emojiCenterX;
+                const deltaY = e.clientY - emojiCenterY;
+
+                // Limitamos cuánto se pueden mover las facciones (max 8px o 12px)
+                // Esto crea el efecto de que la cara "gira" dentro de la cabeza
+                const limit = 8; 
+                
+                // Matemáticas para suavizar y limitar el movimiento
+                const moveX = (deltaX / window.innerWidth) * 20; 
+                const moveY = (deltaY / window.innerHeight) * 20;
+
+                // Aplicar límites estrictos para que no se salgan de la cara
+                const clampedX = Math.max(-limit, Math.min(limit, moveX));
+                const clampedY = Math.max(-limit, Math.min(limit, moveY));
+
+                // Seleccionamos las partes móviles dentro de este emoji específico
+                const features = wrapper.querySelectorAll('.face-features');
+                
+                features.forEach(feature => {
+                    // Aplicamos la transformación
+                    feature.style.transform = `translate(${clampedX}px, ${clampedY}px)`;
+                });
+            });
+        });
+
+        // Efecto "Mirar alrededor" automático si el mouse deja de moverse por un tiempo
+        let idleTimer;
+        
+        function lookAroundRandomly() {
+            const wrappers = document.querySelectorAll('.emoji-wrapper');
+            wrappers.forEach(wrapper => {
+                const features = wrapper.querySelectorAll('.face-features');
+                // Movimiento aleatorio pequeño
+                const rX = (Math.random() * 10) - 5;
+                const rY = (Math.random() * 10) - 5;
+                
+                features.forEach(f => {
+                   f.style.transform = `translate(${rX}px, ${rY}px)`; 
+                });
+            });
+            // Repetir aleatoriamente
+            idleTimer = setTimeout(lookAroundRandomly, 2000 + Math.random() * 3000);
+        }
+
+        // Reiniciar el temporizador de inactividad cuando el mouse se mueve
+        document.addEventListener('mousemove', () => {
+            clearTimeout(idleTimer);
+            // Si el usuario mueve el mouse, dejamos que el evento mousemove controle la cara
+            // El temporizador se reiniciará cuando pare
+            idleTimer = setTimeout(lookAroundRandomly, 3000);
+        });
+
+        // Iniciar comportamiento aleatorio al cargar
+        lookAroundRandomly();
+
+    </script>
+</body>
+</html>

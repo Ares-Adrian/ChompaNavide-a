@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Árbol de Navidad Voxel 3D</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050510; /* Cielo nocturno oscuro */
+            font-family: sans-serif;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px black;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">🎄 Árbol Voxel Navideño 🎄<br>Usa el ratón para rotar y hacer zoom</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+
+    <script>
+        let scene, camera, renderer, controls;
+        let snowSystem, snowGeo;
+
+        // Paleta de colores Voxel
+        const COLORS = {
+            TRUNK: 0x5C4033,
+            LEAVES_DARK: 0x228B22,
+            LEAVES_LIGHT: 0x32CD32,
+            SNOW: 0xFFFFFF,
+            STAR: 0xFFD700,
+            ORNAMENTS: [0xFF0000, 0x0000FF, 0xFFD700, 0xC0C0C0]
+        };
+
+        const VOXEL_SIZE = 1; // Tamaño de cada cubo
+
+        function init() {
+            // 1. Configuración Básica de la Escena
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x050510, 0.015); // Niebla atmosférica
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(30, 30, 50);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.body.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 - 0.1; // Evitar ver debajo del suelo
+
+            // 2. Iluminación
+            const ambientLight = new THREE.AmbientLight(0xcccccc, 0.4);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(50, 80, 30);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            dirLight.shadow.camera.left = -50;
+            dirLight.shadow.camera.right = 50;
+            dirLight.shadow.camera.top = 50;
+            dirLight.shadow.camera.bottom = -50;
+            scene.add(dirLight);
+
+            // 3. Crear el entorno
+            createEnvironment();
+
+            // 4. Crear el Árbol Voxel Procedural
+            const treeGroup = new THREE.Group();
+            buildVoxelTree(treeGroup);
+            scene.add(treeGroup);
+
+            // 5. Iniciar bucle de animación
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        // --- Funciones Auxiliares ---
+
+        // Función base para crear un solo voxel (cubo)
+        const boxGeometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
+        function createVoxel(x, y, z, colorMat, parentGroup, castShadow = true) {
+            const mesh = new THREE.Mesh(boxGeometry, colorMat);
+            mesh.position.set(x * VOXEL_SIZE, y * VOXEL_SIZE, z * VOXEL_SIZE);
+            mesh.castShadow = castShadow;
+            mesh.receiveShadow = true;
+            parentGroup.add(mesh);
+        }
+
+        function buildVoxelTree(group) {
+            // Materiales compartidos para eficiencia
+            const trunkMat = new THREE.MeshLambertMaterial({ color: COLORS.TRUNK });
+            const leafMatDark = new THREE.MeshLambertMaterial({ color: COLORS.LEAVES_DARK });
+            const leafMatLight = new THREE.MeshLambertMaterial({ color: COLORS.LEAVES_LIGHT });
+            const starMat = new THREE.MeshPhongMaterial({ color: COLORS.STAR, emissive: 0x554400 });
+            
+            const ornamentMats = COLORS.ORNAMENTS.map(c => new THREE.MeshPhongMaterial({ color: c, shininess: 100 }));
+
+            // A. Tronco
+            const trunkHeight = 6;
+            const trunkRadius = 2;
+            for (let y = 0; y < trunkHeight; y++) {
+                for (let x = -trunkRadius / 2; x < trunkRadius / 2; x++) {
+                    for (let z = -trunkRadius / 2; z < trunkRadius / 2; z++) {
+                         createVoxel(x + 0.5, y + 0.5, z + 0.5, trunkMat, group);
+                    }
+                }
+            }
+
+            // B. Hojas (Capas del árbol)
+            let currentY = trunkHeight;
+            const layers = [
+                { r: 7, h: 3 }, { r: 6, h: 3 }, { r: 5, h: 3 },
+                { r: 4, h: 2 }, { r: 3, h: 2 }, { r: 2, h: 2 }
+            ];
+
+            layers.forEach(layer => {
+                for (let yOffset = 0; yOffset < layer.h; yOffset++) {
+                    let currentRadius = layer.r - (yOffset * 0.5); // Se estrecha ligeramente al subir la capa
+                    for (let x = -currentRadius; x <= currentRadius; x++) {
+                        for (let z = -currentRadius; z <= currentRadius; z++) {
+                            // Condición para forma circular/orgánica y un poco de aleatoriedad en los bordes
+                            const dist = Math.sqrt(x*x + z*z);
+                            if (dist <= currentRadius && Math.random() > 0.05) {
+                                
+                                let material = Math.random() > 0.5 ? leafMatDark : leafMatLight;
+                                
+                                // Probabilidad de ser un adorno en los bordes
+                                if (dist > currentRadius - 1.5 && Math.random() > 0.85) {
+                                    material = ornamentMats[Math.floor(Math.random() * ornamentMats.length)];
+                                }
+
+                                createVoxel(x, currentY + yOffset, z, material, group);
+                            }
+                        }
+                    }
+                }
+                currentY += layer.h - 0.5; // Superposición ligera entre capas grandes
+            });
+
+            // C. Estrella en la punta
+            const starBaseY = currentY;
+            createVoxel(0, starBaseY, 0, starMat, group);
+            createVoxel(0, starBaseY + 1, 0, starMat, group);
+            createVoxel(1, starBaseY, 0, starMat, group);
+            createVoxel(-1, starBaseY, 0, starMat, group);
+            createVoxel(0, starBaseY, 1, starMat, group);
+            createVoxel(0, starBaseY, -1, starMat, group);
+        }
+
+        function createEnvironment() {
+            // Suelo nevado
+            const planeGeo = new THREE.PlaneGeometry(200, 200);
+            const planeMat = new THREE.MeshLambertMaterial({ color: COLORS.SNOW });
+            const plane = new THREE.Mesh(planeGeo, planeMat);
+            plane.rotation.x = -Math.PI / 2;
+            plane.receiveShadow = true;
+            scene.add(plane);
+
+            // Sistema de partículas de nieve
+            snowGeo = new THREE.BufferGeometry();
+            const snowVertices = [];
+            for (let i = 0; i < 3000; i++) {
+                snowVertices.push(
+                    Math.random() * 200 - 100, // x
+                    Math.random() * 100 + 50,  // y (empiezan alto)
+                    Math.random() * 200 - 100  // z
+                );
+            }
+            snowGeo.setAttribute('position', new THREE.Float32BufferAttribute(snowVertices, 3));
+            const snowMat = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.8,
+                transparent: true,
+                opacity: 0.8
+            });
+            snowSystem = new THREE.Points(snowGeo, snowMat);
+            scene.add(snowSystem);
+        }
+
+        function animateSnow() {
+            const positions = snowGeo.attributes.position.array;
+            for (let i = 1; i < positions.length; i += 3) {
+                // Mover en Y hacia abajo
+                positions[i] -= 0.2;
+                // Si cae por debajo del suelo, reciclar arriba
+                if (positions[i] < 0) {
+                    positions[i] = 100;
+                }
+            }
+            snowGeo.attributes.position.needsUpdate = true;
+            snowSystem.rotation.y += 0.001; // Leve rotación del viento
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            animateSnow();
+            renderer.render(scene, camera);
+        }
+
+        // Iniciar la aplicación
+        init();
+
+    </script>
+</body>
+</html>
